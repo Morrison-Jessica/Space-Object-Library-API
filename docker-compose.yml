@@ -15,7 +15,7 @@ services:
       MYSQL_PASSWORD: asl
       MYSQL_DATABASE: wdv442_space_tracker
   wdv442-node:
-    image: node
+    image: node:20
     user: node
     working_dir: /home/node/app
     networks:
@@ -37,4 +37,3 @@ services:
       - wdv442-mysql
 networks:
   wdv442:
-
