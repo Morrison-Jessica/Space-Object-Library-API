@@ -8,7 +8,7 @@ const { Planet, Star } = require('../models');
 
 const parseId = (value) => Number.parseInt(value, 10);
 
-//💚 Show all resources
+//💚 Show all resources 💚
 const index = async (req, res) => {  // async (req, res)
   // const planets = await Planet.find({})  // .find() to return an array w/ ALL planets
   try {
@@ -23,7 +23,7 @@ const index = async (req, res) => {  // async (req, res)
   }
 }
 
-//💚 Show SINGLE resource :id 
+//💚 Show SINGLE resource :id 💚 
 const show = async (req, res) => {  // async (req, res)
   // const ... = await Planet. ... ({})  // .findByPK(req.params.id) - primary key
   const id = parseId(req.params.id);
@@ -43,7 +43,7 @@ const show = async (req, res) => {  // async (req, res)
   }
 }
 
-//💚 Create a NEW resource - sequelize does the manual work of building, saving & parsing
+//💚 Create a NEW resource - sequelize does the manual work of building, saving & parsing 💚
 // curl -X POST --data "name= ... " http://localhost:3000/plantes // curl -I ... to see headers and status code only
 const create = async (req, res) => {  // async (req, res)
   // const ... = await Planet.create({})
@@ -60,7 +60,7 @@ const create = async (req, res) => {  // async (req, res)
   }
 }
 
-//💚 UPDATE an existing resource :id  // {where: {id}}
+//💚 UPDATE an existing resource :id  // {where: {id}} 💚
 const update = async (req, res) => {  // async (req, res)
   // const { name } = await req.body // grabs all body data
   // const { id } = req.params //.id*  // grabs all params as object // *:id grabs just the id
@@ -84,7 +84,7 @@ const update = async (req, res) => {  // async (req, res)
   }
 }
 
-//💚 REMOVE a single resource :id  // {where: {id}}
+//💚 REMOVE a single resource :id  // {where: {id}} 💚
 const remove = async (req, res) => {  // async (req, res)
   // const { id } = req.params
   // const deleted = await Planet.destroy({})  // .destroy({where: {id: req.params.id}}) // BOOLEAN - true if deleted, false if not

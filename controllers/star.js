@@ -3,8 +3,7 @@ const { Star, Galaxy, Planet } = require('../models');
 
 const parseId = (value) => Number.parseInt(value, 10);
 
-//💚 Show all resources
-// Show all resources
+//💚 Show all resources 💚
 const index = async (req, res) => {
   try {
     const stars = await Star.findAll({
@@ -21,8 +20,7 @@ const index = async (req, res) => {
   }
 }
 
-//💚 Show SINGLE resource :id
-// Show single resource
+//💚 Show SINGLE resource :id 💚
 const show = async (req, res) => {
   const id = parseId(req.params.id);
   if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid star id.' });
@@ -44,8 +42,7 @@ const show = async (req, res) => {
   }
 }
 
-//💚 Create a NEW resource
-// Create a new resource
+//💚 Create a NEW resource 💚
 const create = async (req, res) => {
   const payload = req.body || {};
   if (!Object.keys(payload).length) return res.status(400).json({ error: 'Request body is required.' });
@@ -60,8 +57,7 @@ const create = async (req, res) => {
   }
 }
 
-//💚 UPDATE an existing resource :id
-// Update an existing resource
+//💚 UPDATE an existing resource :id 💚
 const update = async (req, res) => {
   const id = parseId(req.params.id);
   if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid star id.' });
@@ -82,8 +78,7 @@ const update = async (req, res) => {
   }
 }
 
-//💚 REMOVE a single resource :id
-// Remove a single resource
+//💚 REMOVE a single resource :id 💚
 const remove = async (req, res) => {
   const id = parseId(req.params.id);
   if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid star id.' });
