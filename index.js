@@ -1,20 +1,27 @@
-// Load in our Express framework
+//💜
+// Load in Express framework
 const express       = require(`express`)
 
 // Create a new Express instance called "app"
 const app           = express()
 
-// Load in our RESTful routers
+//💜 Parse incoming JSON bodies for API requests 💜
+app.use(express.json())
+
+//💜 Parse form-urlencoded bodies (from HTML forms / Postman x-www-form-urlencoded) 💜
+app.use(express.urlencoded({ extended: true }))
+
+// Load in RESTful routers
 const routers = require('./routers/index.js')
 
-// Home page welcome middleware
+//💜 Home page welcome middleware 💜
 app.get('/', (req, res) => {
   res
     .status(200)
     .send('Welcome to Star Tracker Library')
 })
 
-// Register our RESTful routers with our "app"
+// Register RESTful routers with our "app"
 app.use(`/planets`,  routers.planet)
 app.use(`/stars`,    routers.star)
 app.use(`/galaxies`, routers.galaxy)
