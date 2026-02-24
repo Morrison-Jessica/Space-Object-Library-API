@@ -1,26 +1,32 @@
 'use strict';
-// 💛 define model & association/relation here
+// 💛 Sequelize model file: Planet
 
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Planet extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      // Planet <-> Star many-to-many through explicit join model
+      Planet.belongsToMany(models.Star, {
+        through: models.StarsPlanets,
+        foreignKey: 'planetId',
+        otherKey: 'starId',
+        as: 'stars'
+      });
     }
   }
-  Planet.init({
-    size: DataTypes.INTEGER,
-    description: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'Planet',
-  });
+
+  Planet.init(
+    {
+      name: DataTypes.STRING,
+      size: DataTypes.INTEGER,
+      description: DataTypes.TEXT
+    },
+    {
+      sequelize,
+      modelName: 'Planet'
+    }
+  );
+
   return Planet;
 };
