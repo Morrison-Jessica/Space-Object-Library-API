@@ -1,4 +1,8 @@
 'use strict';
+// 💛 define model & association/relation here
+// 💛 https://sequelize.org/docs/v7/category/associations/
+// 💛 https://sequelize.org/master/manual/assocs.html
+// 💛 https://sequelize.org/docs/v7/models/advanced/
 
 const fs = require('fs');
 const path = require('path');

@@ -21,3 +21,6 @@ app.use(`/galaxies`, routers.galaxy)
 
 // Set our app to listen on port 3000
 app.listen(3000)
+
+//💜 SEQUELIZE https://sequelize.org/docs/v7/category/other-topics/
+//💜 DOCKER https://docs.docker.com/?_gl=1*5mvfm8*_gcl_au*Mjc3MTMwNDguMTc3MTkxOTI0NA..*_ga*MjExNDg1NTI1NC4xNzcxOTE5MjQ0*_ga_XJWPQMJYHQ*czE3NzE5MTkyNDQkbzEkZzEkdDE3NzE5MTkyNDUkajU5JGwwJGgw

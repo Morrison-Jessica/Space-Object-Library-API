@@ -1,10 +1,11 @@
+//💚
 // Show all resources
 const index = (req, res) => {
   // Respond with an array and 2xx status code
   res.status(200).json([`Star#index`])
 }
 
-// Show resource
+// Show single resource
 const show = (req, res) => {
   // Respond with a single object and 2xx code
   res.status(200).json(`Star#show(:id)`)
