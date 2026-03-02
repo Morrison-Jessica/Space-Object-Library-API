@@ -1,0 +1,21 @@
+<%- include('../partials/head', { pageTitle: 'Galaxy New' }) %>
+
+<section class="panel">
+  <h2>Galaxy New</h2>
+  <form action="/galaxies" method="POST" enctype="multipart/form-data">
+    <p>
+      <label for="name">Galaxy Name</label><br />
+      <input id="name" name="name" type="text" required />
+    </p>
+    <p>
+      <label for="image">Galaxy Image</label><br />
+      <input id="image" name="image" type="file" accept="image/*" />
+    </p>
+    <p>
+      <button type="submit">Create Galaxy</button>
+    </p>
+  </form>
+  <p><a href="/galaxies">Back to Galaxies</a></p>
+</section>
+
+<%- include('../partials/footer') %>

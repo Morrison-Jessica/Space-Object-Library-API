@@ -1,8 +1,5 @@
 'use strict';
-// 💛 define model & association/relation here
-// 💛 https://sequelize.org/docs/v7/category/associations/
-// 💛 https://sequelize.org/master/manual/assocs.html
-// 💛 https://sequelize.org/docs/v7/models/advanced/
+// Load Sequelize models and connect model associations.
 
 const fs = require('fs');
 const path = require('path');
@@ -14,12 +11,14 @@ const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
 let sequelize;
+// Initialize Sequelize from env config when provided.
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
+// Load every model file in this folder.
 fs
   .readdirSync(__dirname)
   .filter(file => {
@@ -35,12 +34,14 @@ fs
     db[model.name] = model;
   });
 
+// Run each model's associate function, if it exists.
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
 });
 
+// Export Sequelize instance and loaded models.
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

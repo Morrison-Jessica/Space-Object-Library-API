@@ -1,0 +1,21 @@
+<%- include('../partials/head', { pageTitle: 'Planet New' }) %>
+
+<section class="panel">
+  <h2>Planet New</h2>
+  <form action="/planets" method="POST" enctype="multipart/form-data">
+    <p>
+      <label for="name">Planet Name</label><br />
+      <input id="name" name="name" type="text" required />
+    </p>
+    <p>
+      <label for="image">Planet Image</label><br />
+      <input id="image" name="image" type="file" accept="image/*" />
+    </p>
+    <p>
+      <button type="submit">Create Planet</button>
+    </p>
+  </form>
+  <p><a href="/planets">Back to Planets</a></p>
+</section>
+
+<%- include('../partials/footer') %>

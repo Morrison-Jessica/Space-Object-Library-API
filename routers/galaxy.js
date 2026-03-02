@@ -1,23 +1,21 @@
-//🩷
-// Load in Express framework
-const express = require(`express`)
-// Load in controller/action instances
-const galaxyCtlr = require(`../controllers/galaxy.js`)
+// Map Galaxy REST routes to controller actions.
+const express = require('express')
 
-//🩷 New Router instance 
-const router = new express.Router()
+const galaxyCtlr = require('../controllers/galaxy.js')
+const buildUploader = require('../middleware/upload.js')
+const uploadGalaxyImage = buildUploader('galaxies')
 
-//🩷 Route paths
-// GET /galaxies -> index (all galaxies)
-router.get(`/`, galaxyCtlr.index)
-// POST /galaxies -> create (new galaxy)
-router.post(`/`, galaxyCtlr.create)
-// GET /galaxies/:id -> show (single galaxy)
-router.get(`/:id`, galaxyCtlr.show)
-// PUT /galaxies/:id -> update (replace/update galaxy)
-router.put(`/:id`, galaxyCtlr.update)
-// DELETE /galaxies/:id -> remove (delete galaxy)
-router.delete(`/:id`, galaxyCtlr.remove)
+// Create the Galaxy router.
+const router = express.Router()
 
-//🩷 export "router"
+// Register Galaxy REST endpoints.
+router.get('/', galaxyCtlr.index)
+router.get('/new', galaxyCtlr.newForm)
+router.get('/:id/edit', galaxyCtlr.editForm)
+router.post('/', uploadGalaxyImage.single('image'), galaxyCtlr.create)
+router.get('/:id', galaxyCtlr.show)
+router.put('/:id', uploadGalaxyImage.single('image'), galaxyCtlr.update)
+router.delete('/:id', galaxyCtlr.remove)
+
+// Export the Galaxy router.
 module.exports = router

@@ -1,76 +1,109 @@
-# ✨Space Object Library API✨      
+# Space Object Library
 
----
+## Project Goal
+This project is a Star Tracker library app built with Express, MySQL, and Docker.
 
-## 💙 Purpose / Goal
-Build a REST API for managing space objects data for planets, stars, and galaxies.
+It supports:
+- RESTful CRUD routes for `planets`, `stars`, and `galaxies`
+- Both HTML and JSON responses
+- Image uploads for all three resource types
+- Basic styling with EJS templates and shared layout partials
 
----
+## Tech Used
+- Node.js
+- Express
+- EJS
+- MySQL
+- Sequelize
+- Docker / Docker Compose
+- Multer (image uploads)
 
-## 💚 Big Picture Diagram
-[Client ] → [Express API] → [MySQL Database in Docker]
+## App Flow (Simple Version)
+Client -> Express app -> Sequelize -> MySQL
 
-- API routes handle requests (`/planets`, `/stars`, `/galaxies`)
-- Sequelize models + associations connect data across tables
-- Docker keeps Node + MySQL running together
+The same routes can serve:
+- HTML for browser requests
+- JSON for API requests
 
----
+## Main Features
+1. Full CRUD routes for planets, stars, and galaxies
+2. EJS views for:
+- index
+- show
+- new
+- edit
+3. Method override pattern for HTML forms (`?_method=PUT` and `?_method=DELETE`)
+4. Image upload support in create and edit forms
+5. Validation and status handling:
+- `200` success
+- `201` created
+- `400` bad request (validation issues)
+- `404` not found
+6. Centralized error middleware for cleaner error responses
 
-## 💛 Steps / Process
-1. Set up models for `Planet`, `Star`, and `Galaxy`.
-2. Added associations:
-   - Planet belongs to many Stars
-   - Star belongs to Galaxy
-   - Galaxy has many Stars
-3. Created explicit join model `StarsPlanets` for many-to-many.
-4. Ran migrations to add fields (`name`, `description`, `galaxyId`) and relation tables.
-5. Generated and filled seed files for planets, stars, galaxies, and join-table links.
-6. Updated controllers to full RESTful CRUD with proper status codes.
-7. Updated routers to map all CRUD routes.
-8. Added middleware in `index.js` for JSON + form body parsing.
+## Quick Start
+From the project root:
 
----
-
-## 💜 Challenges / Debug Notes
-- ⚠️ Migration order issue (association migration ran too early) was fixed by adjusting timestamp order.
-- 🔁 Node container got stuck in a nodemon restart loop. Root cause was file-change noise from mounted MySQL data; fixed by using a named Docker volume for MySQL storage in `docker-compose.yml`.
-
----
-
-## 💖 Takeaways
-- Docker running does not always mean app networking is correct from every environment.
-- Sequelize migrations are order-sensitive, so timestamps matter.
-- Many-to-many can use an explicit join model when required.
-
----
-
-## 💙 Quick Reference / Snippets
 ```bash
-# Start containers
-
 docker compose up -d
+```
 
-# Run migrations (inside Node container)
+Check containers:
+
+```bash
+docker compose ps
+```
+
+Open in browser:
+
+`http://localhost:3000`
+
+## Install Commands (Inside Container)
+If needed, open a shell in the Node container:
+
+```bash
+docker compose exec wdv442-node sh
+```
+
+Then run installs there:
+
+```bash
+npm install
+npm install multer
+```
+
+## Sequelize Commands
+Run these from your host terminal:
+
+```bash
 docker compose exec -T wdv442-node npx sequelize-cli db:migrate
-
-# Run seeders (inside Node container)
 docker compose exec -T wdv442-node npx sequelize-cli db:seed:all
-
-# Undo all seeders
 docker compose exec -T wdv442-node npx sequelize-cli db:seed:undo:all
 ```
 
+## Quick API Checks
 ```bash
-# Example API checks
-curl http://localhost:3000/planets
-curl http://localhost:3000/stars
-curl http://localhost:3000/galaxies
+curl -H "Accept: application/json" http://localhost:3000/planets
+curl -H "Accept: application/json" http://localhost:3000/stars
+curl -H "Accept: application/json" http://localhost:3000/galaxies
 ```
 
----
-## 🤖 AI Disclosure
-AI (Codex) was used as a coding assistant for setup, debugging, and code updates.
-All code and output were reviewed and validated by the developer.
+Validation examples:
 
----
-**Developer:** ✨Jessica Morrison✨
+```bash
+curl -X POST http://localhost:3000/planets -H "Content-Type: application/json" -d '{}'
+curl -H "Accept: application/json" http://localhost:3000/stars/not-a-number
+```
+
+## Notes
+- If the Node container loops or crashes, check logs:
+  `docker compose logs --tail 100 wdv442-node`
+- If uploads fail with `Cannot find module 'multer'`, run:
+  `docker compose exec -T wdv442-node npm install multer`
+
+## AI Use Disclosure
+AI (Codex) was used as a coding assistant for setup, debugging, and cleanup.
+All changes were reviewed and tested by the developer.
+
+## Developer
+Jessica Morrison

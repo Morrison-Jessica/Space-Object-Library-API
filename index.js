@@ -1,36 +1,55 @@
-//💜
-// Load in Express framework
-const express       = require(`express`)
+// Load the Express framework.
+const express = require('express')
+// Create the app instance.
+const app = express()
 
-// Create a new Express instance called "app"
-const app           = express()
-
-//💜 Parse incoming JSON bodies for API requests 
+// Set EJS as the template engine.
+app.set('view engine', 'ejs')
+// Set the folder that stores EJS view files.
+app.set('views', './views')
+// Serve static files from the public folder.
+app.use(express.static('public'))
+// Parse JSON body data.
 app.use(express.json())
+// Parse form body data.
+app.use(express.urlencoded({ extended: false }))
+// Allow HTML forms to trigger PUT and DELETE via query string.
+app.use((req, res, next) => {
+  if (req.method === 'POST' && req.query && typeof req.query._method === 'string') {
+    req.method = req.query._method.toUpperCase()
+  }
+  next()
+})
 
-
-//💜 Parse form-urlencoded bodies (from HTML forms / Postman x-www-form-urlencoded) 
-app.use(express.urlencoded({ extended: true }))
-
-
-// Load in RESTful routers
+// Load the RESTful routers.
 const routers = require('./routers/index.js')
 
-
-//💜 Home page welcome middleware 
+// Send a welcome message on the home route.
 app.get('/', (req, res) => {
   res
     .status(200)
     .send('Welcome to Star Tracker Library')
 })
 
-//💜 RESTful routers 
-app.use(`/planets`,  routers.planet)
-app.use(`/stars`,    routers.star)
-app.use(`/galaxies`, routers.galaxy)
+// Register each RESTful router.
+app.use('/planets', routers.planet)
+app.use('/stars', routers.star)
+app.use('/galaxies', routers.galaxy)
 
-//💜 port 3000
+// Return a clean error response for upload and runtime errors.
+app.use((err, req, res, next) => {
+  const contentType = req.get('content-type') || ''
+  const accept = req.get('accept') || ''
+  const wantsJson = contentType.includes('application/json') || accept.includes('application/json')
+  const status = err.status || 500
+  const message = err.message || 'Server error'
+
+  if (wantsJson) {
+    return res.status(status).json({ error: message })
+  }
+
+  return res.status(status).send(message)
+})
+
+// Start the server on port 3000.
 app.listen(3000)
-
-//💜 SEQUELIZE https://sequelize.org/docs/v7/category/other-topics/
-//💜 DOCKER https://docs.docker.com/?_gl=1*5mvfm8*_gcl_au*Mjc3MTMwNDguMTc3MTkxOTI0NA..*_ga*MjExNDg1NTI1NC4xNzcxOTE5MjQ0*_ga_XJWPQMJYHQ*czE3NzE5MTkyNDQkbzEkZzEkdDE3NzE5MTkyNDUkajU5JGwwJGgw

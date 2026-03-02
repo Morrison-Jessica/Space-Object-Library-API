@@ -1,0 +1,29 @@
+<%- include('../partials/head', { pageTitle: 'Planet Edit' }) %>
+
+<section class="panel">
+  <h2>Planet Edit</h2>
+  <p>Editing planet: <strong><%= planet.name %></strong> (ID: <%= planet.id %>)</p>
+  <% if (planet.imageUrl) { %>
+    <p><img src="<%= planet.imageUrl %>" alt="<%= planet.name %>" class="hero-image" /></p>
+  <% } %>
+  <form action="/planets/<%= planet.id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+    <p>
+      <label for="name">Planet Name</label><br />
+      <input id="name" name="name" type="text" value="<%= planet.name %>" required />
+    </p>
+    <p>
+      <label for="image">Planet Image</label><br />
+      <input id="image" name="image" type="file" accept="image/*" />
+    </p>
+    <p>
+      <button type="submit">Update Planet</button>
+    </p>
+  </form>
+  <p>
+    <a href="/planets/<%= planet.id %>">Back to Planet</a>
+    |
+    <a href="/planets">Back to Planets</a>
+  </p>
+</section>
+
+<%- include('../partials/footer') %>

@@ -1,23 +1,21 @@
-//🩷
-// Load in Express framework
-const express = require(`express`)
-// Load controller/action instances
-const planetCtlr = require(`../controllers/planet.js`)
+// Map Planet REST routes to controller actions.
+const express = require('express')
 
-//🩷 New Router instance 
-const router = new express.Router()
+const planetCtlr = require('../controllers/planet.js')
+const buildUploader = require('../middleware/upload.js')
+const uploadPlanetImage = buildUploader('planets')
 
-//🩷 Route paths
-// GET /planets -> index (all planets)
-router.get(`/`, planetCtlr.index)
-// POST /planets -> create (new planet)
-router.post(`/`, planetCtlr.create)
-// GET /planets/:id -> show (single planet)
-router.get(`/:id`, planetCtlr.show)
-// PUT /planets/:id -> update (replace/update planet)
-router.put(`/:id`, planetCtlr.update)
-// DELETE /planets/:id -> remove (delete planet)
-router.delete(`/:id`, planetCtlr.remove)
+// Create the Planet router.
+const router = express.Router()
 
-//🩷 export "router"
+// Register Planet REST endpoints.
+router.get('/', planetCtlr.index)
+router.get('/new', planetCtlr.newForm)
+router.get('/:id/edit', planetCtlr.editForm)
+router.post('/', uploadPlanetImage.single('image'), planetCtlr.create)
+router.get('/:id', planetCtlr.show)
+router.put('/:id', uploadPlanetImage.single('image'), planetCtlr.update)
+router.delete('/:id', planetCtlr.remove)
+
+// Export the Planet router.
 module.exports = router

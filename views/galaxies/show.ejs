@@ -1,0 +1,20 @@
+<%- include('../partials/head', { pageTitle: 'Galaxy Show' }) %>
+
+<section class="panel">
+  <h2>Galaxy Show</h2>
+  <p><strong>ID:</strong> <%= galaxy.id %></p>
+  <p><strong>Name:</strong> <%= galaxy.name %></p>
+  <% if (galaxy.imageUrl) { %>
+    <p><img src="<%= galaxy.imageUrl %>" alt="<%= galaxy.name %>" class="hero-image" /></p>
+  <% } %>
+  <form action="/galaxies/<%= galaxy.id %>?_method=DELETE" method="POST">
+    <button type="submit">Delete Galaxy</button>
+  </form>
+  <p>
+    <a href="/galaxies">Back to Galaxies</a>
+    |
+    <a href="/galaxies/<%= galaxy.id %>/edit">Edit Galaxy</a>
+  </p>
+</section>
+
+<%- include('../partials/footer') %>

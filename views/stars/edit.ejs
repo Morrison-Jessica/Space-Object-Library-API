@@ -1,0 +1,29 @@
+<%- include('../partials/head', { pageTitle: 'Star Edit' }) %>
+
+<section class="panel">
+  <h2>Star Edit</h2>
+  <p>Editing star: <strong><%= star.name %></strong> (ID: <%= star.id %>)</p>
+  <% if (star.imageUrl) { %>
+    <p><img src="<%= star.imageUrl %>" alt="<%= star.name %>" class="hero-image" /></p>
+  <% } %>
+  <form action="/stars/<%= star.id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+    <p>
+      <label for="name">Star Name</label><br />
+      <input id="name" name="name" type="text" value="<%= star.name %>" required />
+    </p>
+    <p>
+      <label for="image">Star Image</label><br />
+      <input id="image" name="image" type="file" accept="image/*" />
+    </p>
+    <p>
+      <button type="submit">Update Star</button>
+    </p>
+  </form>
+  <p>
+    <a href="/stars/<%= star.id %>">Back to Star</a>
+    |
+    <a href="/stars">Back to Stars</a>
+  </p>
+</section>
+
+<%- include('../partials/footer') %>

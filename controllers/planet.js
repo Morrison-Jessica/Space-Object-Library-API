@@ -1,110 +1,140 @@
-//💚 define queries here
-//💚 https://sequelize.org/docs/v7/category/querying/
-//💚 https://sequelize.org/docs/v7/querying/json/
-//💚 https://sequelize.org/docs/v7/querying/operators/
-//💚 https://sequelize.org/docs/v7/models/validations-and-constraints/
+// Handle Planet REST actions.
+const samplePlanets = [
+  { id: 1, name: 'Mercury', imageUrl: null },
+  { id: 2, name: 'Venus', imageUrl: null },
+  { id: 3, name: 'Earth', imageUrl: null }
+]
+let nextPlanetId = 4
 
-const { Planet, Star } = require('../models');
-
-const parseId = (value) => Number.parseInt(value, 10);
-
-//💚 Show all resources 💚
-const index = async (req, res) => {  // async (req, res)
-  // const planets = await Planet.find({})  // .find() to return an array w/ ALL planets
-  try {
-    const planets = await Planet.findAll({
-      include: [{ model: Star, as: 'stars', through: { attributes: [] } }]
-    });
-
-    // Respond with an array and 2xx status code
-    res.status(200).json(planets);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch planets.' });
-  }
+// Detect when the client requests JSON.
+const wantsJson = (req) => {
+  const contentType = req.get('content-type') || ''
+  const accept = req.get('accept') || ''
+  return contentType.includes('application/json') || accept.includes('application/json')
 }
 
-//💚 Show SINGLE resource :id 💚 
-const show = async (req, res) => {  // async (req, res)
-  // const ... = await Planet. ... ({})  // .findByPK(req.params.id) - primary key
-  const id = parseId(req.params.id);
-  if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid planet id.' });
-
-  try {
-    const planet = await Planet.findByPk(id, {
-      include: [{ model: Star, as: 'stars', through: { attributes: [] } }]
-    });
-
-    if (!planet) return res.status(404).json({ error: 'Planet not found.' });
-
-    // Respond with a single object and 2xx code
-    res.status(200).json(planet);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch planet.' });
+// Return a validation error response.
+const badRequest = (req, res, message) => {
+  if (wantsJson(req)) {
+    return res.status(400).json({ error: message })
   }
+  return res.status(400).send(message)
 }
 
-//💚 Create a NEW resource - sequelize does the manual work of building, saving & parsing 💚
-// curl -X POST --data "name= ... " http://localhost:3000/plantes // curl -I ... to see headers and status code only
-const create = async (req, res) => {  // async (req, res)
-  // const ... = await Planet.create({})
-  const payload = req.body || {};
-  if (!Object.keys(payload).length) return res.status(400).json({ error: 'Request body is required.' });
-
-  try {
-    const planet = await Planet.create(payload);
-
-    // Issue a redirect with a success 2xx code
-    res.status(201).json(planet);
-  } catch (error) {
-    res.status(400).json({ error: 'Failed to create planet.', details: error.message });
+// Return a not-found error response.
+const notFound = (req, res) => {
+  if (wantsJson(req)) {
+    return res.status(404).json({ error: 'Planet not found' })
   }
+  return res.status(404).send('Planet not found')
 }
 
-//💚 UPDATE an existing resource :id  // {where: {id}} 💚
-const update = async (req, res) => {  // async (req, res)
-  // const { name } = await req.body // grabs all body data
-  // const { id } = req.params //.id*  // grabs all params as object // *:id grabs just the id
-  // const ... = await Planet.update({param goes here}, {param goes here}) // ie  .update({name}, {where: {id}})
-  const id = parseId(req.params.id);
-  if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid planet id.' });
-
-  const payload = req.body || {};
-  if (!Object.keys(payload).length) return res.status(400).json({ error: 'Request body is required.' });
-
-  try {
-    const planet = await Planet.findByPk(id);
-    if (!planet) return res.status(404).json({ error: 'Planet not found.' });
-
-    await planet.update(payload);
-
-    // Respond with a single resource and 2xx code
-    res.status(200).json(planet)
-  } catch (error) {
-    res.status(400).json({ error: 'Failed to update planet.', details: error.message });
+// Return all planets.
+const index = (req, res) => {
+  if (wantsJson(req)) {
+    return res.status(200).json(samplePlanets)
   }
+  return res.status(200).render('planets/index', { planets: samplePlanets })
 }
 
-//💚 REMOVE a single resource :id  // {where: {id}} 💚
-const remove = async (req, res) => {  // async (req, res)
-  // const { id } = req.params
-  // const deleted = await Planet.destroy({})  // .destroy({where: {id: req.params.id}}) // BOOLEAN - true if deleted, false if not
-  const id = parseId(req.params.id);
-  if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid planet id.' });
-
-  try {
-    const deleted = await Planet.destroy({ where: { id } });
-    if (!deleted) return res.status(404).json({ error: 'Planet not found.' });
-
-    // Respond with a 2xx status code and boolean
-    res.status(204).send()  // res.json ({ deleted }) // or res.json(true) if you want to return a boolean instead of the deleted resource
-
-    // REDIRECT - instead of returning a boolean
-    // if (deleted)
-    //   res.redirect(`/planets`, 204) // redirect to index if deleted - sequelize reads `/planets` as (../controllers/planet.js) and looks for the index action
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to delete planet.' });
+// Return one planet by id.
+const show = (req, res) => {
+  const planetId = Number(req.params.id)
+  if (Number.isNaN(planetId)) {
+    return badRequest(req, res, 'Invalid planet id')
   }
+  const planet = samplePlanets.find((item) => item.id === planetId)
+  if (!planet) {
+    return notFound(req, res)
+  }
+  if (wantsJson(req)) {
+    return res.status(200).json(planet)
+  }
+  return res.status(200).render('planets/show', { planet })
 }
 
-// Export all controller actions
-module.exports = { index, show, create, update, remove }
+// Render the new planet page.
+const newForm = (req, res) => {
+  if (wantsJson(req)) {
+    return res.status(200).json({ message: 'Send POST /planets with JSON body.' })
+  }
+  res.status(200).render('planets/new')
+}
+
+// Render the edit planet page.
+const editForm = (req, res) => {
+  const planetId = Number(req.params.id)
+  if (Number.isNaN(planetId)) {
+    return badRequest(req, res, 'Invalid planet id')
+  }
+  const planet = samplePlanets.find((item) => item.id === planetId)
+  if (!planet) {
+    return notFound(req, res)
+  }
+  if (wantsJson(req)) {
+    return res.status(200).json({ message: 'Send PUT /planets/:id with JSON body.', planet })
+  }
+  return res.status(200).render('planets/edit', { planet })
+}
+
+// Create a new planet.
+const create = (req, res) => {
+  const name = (req.body.name || '').trim()
+  if (!name) {
+    return badRequest(req, res, 'Planet name is required')
+  }
+  const imageUrl = req.file ? `/uploads/planets/${req.file.filename}` : null
+  const planet = { id: nextPlanetId, name, imageUrl }
+  samplePlanets.push(planet)
+  nextPlanetId += 1
+  if (wantsJson(req)) {
+    return res.status(201).json(planet)
+  }
+  return res.redirect(`/planets/${planet.id}`)
+}
+
+// Update one planet by id.
+const update = (req, res) => {
+  const planetId = Number(req.params.id)
+  if (Number.isNaN(planetId)) {
+    return badRequest(req, res, 'Invalid planet id')
+  }
+  const planet = samplePlanets.find((item) => item.id === planetId)
+  if (!planet) {
+    return notFound(req, res)
+  }
+  if (Object.prototype.hasOwnProperty.call(req.body, 'name') && !(req.body.name || '').trim()) {
+    return badRequest(req, res, 'Planet name cannot be empty')
+  }
+  const nextName = (req.body.name || '').trim()
+  if (nextName) {
+    planet.name = nextName
+  }
+  if (req.file) {
+    planet.imageUrl = `/uploads/planets/${req.file.filename}`
+  }
+  if (wantsJson(req)) {
+    return res.status(200).json(planet)
+  }
+  return res.redirect(`/planets/${planetId}`)
+}
+
+// Delete one planet by id.
+const remove = (req, res) => {
+  const planetId = Number(req.params.id)
+  if (Number.isNaN(planetId)) {
+    return badRequest(req, res, 'Invalid planet id')
+  }
+  const indexToRemove = samplePlanets.findIndex((item) => item.id === planetId)
+  if (indexToRemove < 0) {
+    return notFound(req, res)
+  }
+  const [deletedPlanet] = samplePlanets.splice(indexToRemove, 1)
+  if (wantsJson(req)) {
+    return res.status(200).json({ deleted: true, planet: deletedPlanet })
+  }
+  return res.redirect('/planets')
+}
+
+// Export all Planet actions.
+module.exports = { index, show, newForm, editForm, create, update, remove }

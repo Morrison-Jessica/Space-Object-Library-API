@@ -1,0 +1,29 @@
+<%- include('../partials/head', { pageTitle: 'Galaxy Edit' }) %>
+
+<section class="panel">
+  <h2>Galaxy Edit</h2>
+  <p>Editing galaxy: <strong><%= galaxy.name %></strong> (ID: <%= galaxy.id %>)</p>
+  <% if (galaxy.imageUrl) { %>
+    <p><img src="<%= galaxy.imageUrl %>" alt="<%= galaxy.name %>" class="hero-image" /></p>
+  <% } %>
+  <form action="/galaxies/<%= galaxy.id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+    <p>
+      <label for="name">Galaxy Name</label><br />
+      <input id="name" name="name" type="text" value="<%= galaxy.name %>" required />
+    </p>
+    <p>
+      <label for="image">Galaxy Image</label><br />
+      <input id="image" name="image" type="file" accept="image/*" />
+    </p>
+    <p>
+      <button type="submit">Update Galaxy</button>
+    </p>
+  </form>
+  <p>
+    <a href="/galaxies/<%= galaxy.id %>">Back to Galaxy</a>
+    |
+    <a href="/galaxies">Back to Galaxies</a>
+  </p>
+</section>
+
+<%- include('../partials/footer') %>

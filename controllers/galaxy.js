@@ -1,92 +1,140 @@
-//💚
-const { Galaxy, Star } = require('../models');
+// Handle Galaxy REST actions.
+const sampleGalaxies = [
+  { id: 1, name: 'Milky Way', imageUrl: null },
+  { id: 2, name: 'Andromeda', imageUrl: null },
+  { id: 3, name: 'Triangulum', imageUrl: null }
+]
+let nextGalaxyId = 4
 
-const parseId = (value) => Number.parseInt(value, 10);
-
-//💚 Show all resources 💚 
-const index = async (req, res) => {
-  try {
-    const galaxies = await Galaxy.findAll({
-      include: [{ model: Star, as: 'stars' }]
-    });
-
-    // Respond with an array and 2xx status code
-    res.status(200).json(galaxies)
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch galaxies.' });
-  }
+// Detect when the client requests JSON.
+const wantsJson = (req) => {
+  const contentType = req.get('content-type') || ''
+  const accept = req.get('accept') || ''
+  return contentType.includes('application/json') || accept.includes('application/json')
 }
 
-//💚 Show SINGLE resource :id 💚
-const show = async (req, res) => {
-  const id = parseId(req.params.id);
-  if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid galaxy id.' });
-
-  try {
-    const galaxy = await Galaxy.findByPk(id, {
-      include: [{ model: Star, as: 'stars' }]
-    });
-
-    if (!galaxy) return res.status(404).json({ error: 'Galaxy not found.' });
-
-    // Respond with a single object and 2xx code
-    res.status(200).json(galaxy)
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch galaxy.' });
+// Return a validation error response.
+const badRequest = (req, res, message) => {
+  if (wantsJson(req)) {
+    return res.status(400).json({ error: message })
   }
+  return res.status(400).send(message)
 }
 
-//💚 Create a NEW resource 💚
-const create = async (req, res) => {
-  const payload = req.body || {};
-  if (!Object.keys(payload).length) return res.status(400).json({ error: 'Request body is required.' });
-
-  try {
-    const galaxy = await Galaxy.create(payload);
-
-    // Issue a redirect with a success 2xx code
-    res.status(201).json(galaxy)
-  } catch (error) {
-    res.status(400).json({ error: 'Failed to create galaxy.', details: error.message });
+// Return a not-found error response.
+const notFound = (req, res) => {
+  if (wantsJson(req)) {
+    return res.status(404).json({ error: 'Galaxy not found' })
   }
+  return res.status(404).send('Galaxy not found')
 }
 
-//💚 UPDATE an existing resource :id 💚
-const update = async (req, res) => {
-  const id = parseId(req.params.id);
-  if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid galaxy id.' });
-
-  const payload = req.body || {};
-  if (!Object.keys(payload).length) return res.status(400).json({ error: 'Request body is required.' });
-
-  try {
-    const galaxy = await Galaxy.findByPk(id);
-    if (!galaxy) return res.status(404).json({ error: 'Galaxy not found.' });
-
-    await galaxy.update(payload);
-
-    // Respond with a single resource and 2xx code
-    res.status(200).json(galaxy)
-  } catch (error) {
-    res.status(400).json({ error: 'Failed to update galaxy.', details: error.message });
+// Return all galaxies.
+const index = (req, res) => {
+  if (wantsJson(req)) {
+    return res.status(200).json(sampleGalaxies)
   }
+  return res.status(200).render('galaxies/index', { galaxies: sampleGalaxies })
 }
 
-//💚 REMOVE a single resource :id 💚
-const remove = async (req, res) => {
-  const id = parseId(req.params.id);
-  if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid galaxy id.' });
-
-  try {
-    const deleted = await Galaxy.destroy({ where: { id } });
-    if (!deleted) return res.status(404).json({ error: 'Galaxy not found.' });
-
-    // Respond with a 2xx status code and bool
-    res.status(204).send()
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to delete galaxy.' });
+// Return one galaxy by id.
+const show = (req, res) => {
+  const galaxyId = Number(req.params.id)
+  if (Number.isNaN(galaxyId)) {
+    return badRequest(req, res, 'Invalid galaxy id')
   }
+  const galaxy = sampleGalaxies.find((item) => item.id === galaxyId)
+  if (!galaxy) {
+    return notFound(req, res)
+  }
+  if (wantsJson(req)) {
+    return res.status(200).json(galaxy)
+  }
+  return res.status(200).render('galaxies/show', { galaxy })
 }
 
-// Export all controller actions
-module.exports = { index, show, create, update, remove }
+// Render the new galaxy page.
+const newForm = (req, res) => {
+  if (wantsJson(req)) {
+    return res.status(200).json({ message: 'Send POST /galaxies with JSON body.' })
+  }
+  return res.status(200).render('galaxies/new')
+}
+
+// Render the edit galaxy page.
+const editForm = (req, res) => {
+  const galaxyId = Number(req.params.id)
+  if (Number.isNaN(galaxyId)) {
+    return badRequest(req, res, 'Invalid galaxy id')
+  }
+  const galaxy = sampleGalaxies.find((item) => item.id === galaxyId)
+  if (!galaxy) {
+    return notFound(req, res)
+  }
+  if (wantsJson(req)) {
+    return res.status(200).json({ message: 'Send PUT /galaxies/:id with JSON body.', galaxy })
+  }
+  return res.status(200).render('galaxies/edit', { galaxy })
+}
+
+// Create a new galaxy.
+const create = (req, res) => {
+  const name = (req.body.name || '').trim()
+  if (!name) {
+    return badRequest(req, res, 'Galaxy name is required')
+  }
+  const imageUrl = req.file ? `/uploads/galaxies/${req.file.filename}` : null
+  const galaxy = { id: nextGalaxyId, name, imageUrl }
+  sampleGalaxies.push(galaxy)
+  nextGalaxyId += 1
+  if (wantsJson(req)) {
+    return res.status(201).json(galaxy)
+  }
+  return res.redirect(`/galaxies/${galaxy.id}`)
+}
+
+// Update one galaxy by id.
+const update = (req, res) => {
+  const galaxyId = Number(req.params.id)
+  if (Number.isNaN(galaxyId)) {
+    return badRequest(req, res, 'Invalid galaxy id')
+  }
+  const galaxy = sampleGalaxies.find((item) => item.id === galaxyId)
+  if (!galaxy) {
+    return notFound(req, res)
+  }
+  if (Object.prototype.hasOwnProperty.call(req.body, 'name') && !(req.body.name || '').trim()) {
+    return badRequest(req, res, 'Galaxy name cannot be empty')
+  }
+  const nextName = (req.body.name || '').trim()
+  if (nextName) {
+    galaxy.name = nextName
+  }
+  if (req.file) {
+    galaxy.imageUrl = `/uploads/galaxies/${req.file.filename}`
+  }
+  if (wantsJson(req)) {
+    return res.status(200).json(galaxy)
+  }
+  return res.redirect(`/galaxies/${galaxyId}`)
+}
+
+// Delete one galaxy by id.
+const remove = (req, res) => {
+  const galaxyId = Number(req.params.id)
+  if (Number.isNaN(galaxyId)) {
+    return badRequest(req, res, 'Invalid galaxy id')
+  }
+  const indexToRemove = sampleGalaxies.findIndex((item) => item.id === galaxyId)
+  if (indexToRemove < 0) {
+    return notFound(req, res)
+  }
+  const [deletedGalaxy] = sampleGalaxies.splice(indexToRemove, 1)
+  if (wantsJson(req)) {
+    return res.status(200).json({ deleted: true, galaxy: deletedGalaxy })
+  }
+  return res.redirect('/galaxies')
+}
+
+// Export all Galaxy actions.
+module.exports = { index, show, newForm, editForm, create, update, remove }

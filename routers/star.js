@@ -1,23 +1,21 @@
-//🩷
-// Load in Express framework
-const express = require(`express`)
-// Load in our controller/action instances
-const starCtlr = require(`../controllers/star.js`)
+// Map Star REST routes to controller actions.
+const express = require('express')
 
-//🩷 New Router instance 
-const router = new express.Router()
+const starCtlr = require('../controllers/star.js')
+const buildUploader = require('../middleware/upload.js')
+const uploadStarImage = buildUploader('stars')
 
-//🩷 Route paths
-// GET /stars -> index (all stars)
-router.get(`/`, starCtlr.index)
-// POST /stars -> create (new star)
-router.post(`/`, starCtlr.create)
-// GET /stars/:id -> show (single star)
-router.get(`/:id`, starCtlr.show)
-// PUT /stars/:id -> update (replace/update star)
-router.put(`/:id`, starCtlr.update)
-// DELETE /stars/:id -> remove (delete star)
-router.delete(`/:id`, starCtlr.remove)
+// Create the Star router.
+const router = express.Router()
 
-//🩷 export "router"
+// Register Star REST endpoints.
+router.get('/', starCtlr.index)
+router.get('/new', starCtlr.newForm)
+router.get('/:id/edit', starCtlr.editForm)
+router.post('/', uploadStarImage.single('image'), starCtlr.create)
+router.get('/:id', starCtlr.show)
+router.put('/:id', uploadStarImage.single('image'), starCtlr.update)
+router.delete('/:id', starCtlr.remove)
+
+// Export the Star router.
 module.exports = router

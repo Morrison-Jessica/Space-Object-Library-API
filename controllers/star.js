@@ -1,98 +1,140 @@
-//💚
-const { Star, Galaxy, Planet } = require('../models');
+// Handle Star REST actions.
+const sampleStars = [
+  { id: 1, name: 'Sun', imageUrl: null },
+  { id: 2, name: 'Sirius', imageUrl: null },
+  { id: 3, name: 'Polaris', imageUrl: null }
+]
+let nextStarId = 4
 
-const parseId = (value) => Number.parseInt(value, 10);
-
-//💚 Show all resources 💚
-const index = async (req, res) => {
-  try {
-    const stars = await Star.findAll({
-      include: [
-        { model: Galaxy, as: 'galaxy' },
-        { model: Planet, as: 'planets', through: { attributes: [] } }
-      ]
-    });
-
-    // Respond with an array and 2xx status code
-    res.status(200).json(stars)
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch stars.' });
-  }
+// Detect when the client requests JSON.
+const wantsJson = (req) => {
+  const contentType = req.get('content-type') || ''
+  const accept = req.get('accept') || ''
+  return contentType.includes('application/json') || accept.includes('application/json')
 }
 
-//💚 Show SINGLE resource :id 💚
-const show = async (req, res) => {
-  const id = parseId(req.params.id);
-  if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid star id.' });
-
-  try {
-    const star = await Star.findByPk(id, {
-      include: [
-        { model: Galaxy, as: 'galaxy' },
-        { model: Planet, as: 'planets', through: { attributes: [] } }
-      ]
-    });
-
-    if (!star) return res.status(404).json({ error: 'Star not found.' });
-
-    // Respond with a single object and 2xx code
-    res.status(200).json(star)
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch star.' });
+// Return a validation error response.
+const badRequest = (req, res, message) => {
+  if (wantsJson(req)) {
+    return res.status(400).json({ error: message })
   }
+  return res.status(400).send(message)
 }
 
-//💚 Create a NEW resource 💚
-const create = async (req, res) => {
-  const payload = req.body || {};
-  if (!Object.keys(payload).length) return res.status(400).json({ error: 'Request body is required.' });
-
-  try {
-    const star = await Star.create(payload);
-
-    // Issue a redirect with a success 2xx code
-    res.status(201).json(star)
-  } catch (error) {
-    res.status(400).json({ error: 'Failed to create star.', details: error.message });
+// Return a not-found error response.
+const notFound = (req, res) => {
+  if (wantsJson(req)) {
+    return res.status(404).json({ error: 'Star not found' })
   }
+  return res.status(404).send('Star not found')
 }
 
-//💚 UPDATE an existing resource :id 💚
-const update = async (req, res) => {
-  const id = parseId(req.params.id);
-  if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid star id.' });
-
-  const payload = req.body || {};
-  if (!Object.keys(payload).length) return res.status(400).json({ error: 'Request body is required.' });
-
-  try {
-    const star = await Star.findByPk(id);
-    if (!star) return res.status(404).json({ error: 'Star not found.' });
-
-    await star.update(payload);
-
-    // Respond with a single resource and 2xx code
-    res.status(200).json(star)
-  } catch (error) {
-    res.status(400).json({ error: 'Failed to update star.', details: error.message });
+// Return all stars.
+const index = (req, res) => {
+  if (wantsJson(req)) {
+    return res.status(200).json(sampleStars)
   }
+  return res.status(200).render('stars/index', { stars: sampleStars })
 }
 
-//💚 REMOVE a single resource :id 💚
-const remove = async (req, res) => {
-  const id = parseId(req.params.id);
-  if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid star id.' });
-
-  try {
-    const deleted = await Star.destroy({ where: { id } });
-    if (!deleted) return res.status(404).json({ error: 'Star not found.' });
-
-    // Respond with a 2xx status code and bool
-    res.status(204).send()
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to delete star.' });
+// Return one star by id.
+const show = (req, res) => {
+  const starId = Number(req.params.id)
+  if (Number.isNaN(starId)) {
+    return badRequest(req, res, 'Invalid star id')
   }
+  const star = sampleStars.find((item) => item.id === starId)
+  if (!star) {
+    return notFound(req, res)
+  }
+  if (wantsJson(req)) {
+    return res.status(200).json(star)
+  }
+  return res.status(200).render('stars/show', { star })
 }
 
-// Export all controller actions
-module.exports = { index, show, create, update, remove }
+// Render the new star page.
+const newForm = (req, res) => {
+  if (wantsJson(req)) {
+    return res.status(200).json({ message: 'Send POST /stars with JSON body.' })
+  }
+  return res.status(200).render('stars/new')
+}
+
+// Render the edit star page.
+const editForm = (req, res) => {
+  const starId = Number(req.params.id)
+  if (Number.isNaN(starId)) {
+    return badRequest(req, res, 'Invalid star id')
+  }
+  const star = sampleStars.find((item) => item.id === starId)
+  if (!star) {
+    return notFound(req, res)
+  }
+  if (wantsJson(req)) {
+    return res.status(200).json({ message: 'Send PUT /stars/:id with JSON body.', star })
+  }
+  return res.status(200).render('stars/edit', { star })
+}
+
+// Create a new star.
+const create = (req, res) => {
+  const name = (req.body.name || '').trim()
+  if (!name) {
+    return badRequest(req, res, 'Star name is required')
+  }
+  const imageUrl = req.file ? `/uploads/stars/${req.file.filename}` : null
+  const star = { id: nextStarId, name, imageUrl }
+  sampleStars.push(star)
+  nextStarId += 1
+  if (wantsJson(req)) {
+    return res.status(201).json(star)
+  }
+  return res.redirect(`/stars/${star.id}`)
+}
+
+// Update one star by id.
+const update = (req, res) => {
+  const starId = Number(req.params.id)
+  if (Number.isNaN(starId)) {
+    return badRequest(req, res, 'Invalid star id')
+  }
+  const star = sampleStars.find((item) => item.id === starId)
+  if (!star) {
+    return notFound(req, res)
+  }
+  if (Object.prototype.hasOwnProperty.call(req.body, 'name') && !(req.body.name || '').trim()) {
+    return badRequest(req, res, 'Star name cannot be empty')
+  }
+  const nextName = (req.body.name || '').trim()
+  if (nextName) {
+    star.name = nextName
+  }
+  if (req.file) {
+    star.imageUrl = `/uploads/stars/${req.file.filename}`
+  }
+  if (wantsJson(req)) {
+    return res.status(200).json(star)
+  }
+  return res.redirect(`/stars/${starId}`)
+}
+
+// Delete one star by id.
+const remove = (req, res) => {
+  const starId = Number(req.params.id)
+  if (Number.isNaN(starId)) {
+    return badRequest(req, res, 'Invalid star id')
+  }
+  const indexToRemove = sampleStars.findIndex((item) => item.id === starId)
+  if (indexToRemove < 0) {
+    return notFound(req, res)
+  }
+  const [deletedStar] = sampleStars.splice(indexToRemove, 1)
+  if (wantsJson(req)) {
+    return res.status(200).json({ deleted: true, star: deletedStar })
+  }
+  return res.redirect('/stars')
+}
+
+// Export all Star actions.
+module.exports = { index, show, newForm, editForm, create, update, remove }
