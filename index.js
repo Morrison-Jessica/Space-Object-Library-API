@@ -9,6 +9,8 @@ app.set('view engine', 'ejs')
 app.set('views', './views')
 // Serve static files from the public folder.
 app.use(express.static('public'))
+// Parse JSON body data.
+app.use(express.json())
 // Parse form body data.
 app.use(express.urlencoded({ extended: false }))
 // Allow HTML forms to trigger PUT and DELETE via query string.
