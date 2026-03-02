@@ -2,7 +2,13 @@
 
 <section class="panel">
   <h2>Planet Edit</h2>
-  <p>Phase 2 layout: add the edit form here.</p>
+  <p>Editing planet: <strong><%= planet.name %></strong> (ID: <%= planet.id %>)</p>
+  <p>Phase 4 will add the edit form.</p>
+  <p>
+    <a href="/planets/<%= planet.id %>">Back to Planet</a>
+    |
+    <a href="/planets">Back to Planets</a>
+  </p>
 </section>
 
 <%- include('../partials/footer') %>

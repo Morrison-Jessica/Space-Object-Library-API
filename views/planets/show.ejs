@@ -2,7 +2,13 @@
 
 <section class="panel">
   <h2>Planet Show</h2>
-  <p>Phase 2 layout: show one Planet record here.</p>
+  <p><strong>ID:</strong> <%= planet.id %></p>
+  <p><strong>Name:</strong> <%= planet.name %></p>
+  <p>
+    <a href="/planets">Back to Planets</a>
+    |
+    <a href="/planets/<%= planet.id %>/edit">Edit Planet</a>
+  </p>
 </section>
 
 <%- include('../partials/footer') %>

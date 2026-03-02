@@ -8,6 +8,8 @@ const router = express.Router()
 
 // Register Planet REST endpoints.
 router.get('/', planetCtlr.index)
+router.get('/new', planetCtlr.newForm)
+router.get('/:id/edit', planetCtlr.editForm)
 router.post('/', planetCtlr.create)
 router.get('/:id', planetCtlr.show)
 router.put('/:id', planetCtlr.update)

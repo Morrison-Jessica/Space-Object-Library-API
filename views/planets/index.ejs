@@ -2,7 +2,17 @@
 
 <section class="panel">
   <h2>Planets Index</h2>
-  <p>Phase 2 layout: list all planets here.</p>
+  <p>Phase 3: Planet index now renders from a GET route.</p>
+  <p><a href="/planets/new">Create Planet</a></p>
+  <ul>
+    <% planets.forEach((planet) => { %>
+      <li>
+        <a href="/planets/<%= planet.id %>"><%= planet.name %></a>
+        |
+        <a href="/planets/<%= planet.id %>/edit">Edit</a>
+      </li>
+    <% }) %>
+  </ul>
 </section>
 
 <%- include('../partials/footer') %>
