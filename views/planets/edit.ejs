@@ -3,7 +3,15 @@
 <section class="panel">
   <h2>Planet Edit</h2>
   <p>Editing planet: <strong><%= planet.name %></strong> (ID: <%= planet.id %>)</p>
-  <p>Phase 4 will add the edit form.</p>
+  <form action="/planets/<%= planet.id %>?_method=PUT" method="POST">
+    <p>
+      <label for="name">Planet Name</label><br />
+      <input id="name" name="name" type="text" value="<%= planet.name %>" required />
+    </p>
+    <p>
+      <button type="submit">Update Planet</button>
+    </p>
+  </form>
   <p>
     <a href="/planets/<%= planet.id %>">Back to Planet</a>
     |

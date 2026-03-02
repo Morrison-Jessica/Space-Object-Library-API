@@ -2,8 +2,15 @@
 
 <section class="panel">
   <h2>Planet New</h2>
-  <p>Phase 3: this page is now connected to <code>GET /planets/new</code>.</p>
-  <p>Phase 4 will add the create form.</p>
+  <form action="/planets" method="POST">
+    <p>
+      <label for="name">Planet Name</label><br />
+      <input id="name" name="name" type="text" required />
+    </p>
+    <p>
+      <button type="submit">Create Planet</button>
+    </p>
+  </form>
   <p><a href="/planets">Back to Planets</a></p>
 </section>
 

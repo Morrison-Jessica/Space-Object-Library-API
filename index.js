@@ -9,6 +9,15 @@ app.set('view engine', 'ejs')
 app.set('views', './views')
 // Serve static files from the public folder.
 app.use(express.static('public'))
+// Parse form body data.
+app.use(express.urlencoded({ extended: false }))
+// Allow HTML forms to trigger PUT and DELETE via query string.
+app.use((req, res, next) => {
+  if (req.method === 'POST' && req.query && typeof req.query._method === 'string') {
+    req.method = req.query._method.toUpperCase()
+  }
+  next()
+})
 
 // Load the RESTful routers.
 const routers = require('./routers/index.js')

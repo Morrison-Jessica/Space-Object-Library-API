@@ -10,6 +10,10 @@
         <a href="/planets/<%= planet.id %>"><%= planet.name %></a>
         |
         <a href="/planets/<%= planet.id %>/edit">Edit</a>
+        |
+        <form action="/planets/<%= planet.id %>?_method=DELETE" method="POST" style="display:inline;">
+          <button type="submit">Delete</button>
+        </form>
       </li>
     <% }) %>
   </ul>

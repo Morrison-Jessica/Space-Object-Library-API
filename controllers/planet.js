@@ -4,6 +4,7 @@ const samplePlanets = [
   { id: 2, name: 'Venus' },
   { id: 3, name: 'Earth' }
 ]
+let nextPlanetId = 4
 
 // Return all planets.
 const index = (req, res) => {
@@ -31,17 +32,32 @@ const editForm = (req, res) => {
 
 // Create a new planet.
 const create = (req, res) => {
-  res.redirect('/planets', 201)
+  const name = (req.body.name || '').trim() || 'Unnamed Planet'
+  const planet = { id: nextPlanetId, name }
+  samplePlanets.push(planet)
+  nextPlanetId += 1
+  res.redirect(`/planets/${planet.id}`)
 }
 
 // Update one planet by id.
 const update = (req, res) => {
-  res.status(200).json(`/planets/${req.params.id}`)
+  const planetId = Number(req.params.id)
+  const planet = samplePlanets.find((item) => item.id === planetId)
+  if (planet) {
+    const nextName = (req.body.name || '').trim()
+    if (nextName) planet.name = nextName
+  }
+  res.redirect(`/planets/${planetId}`)
 }
 
 // Delete one planet by id.
 const remove = (req, res) => {
-  res.status(204).json(true)
+  const planetId = Number(req.params.id)
+  const indexToRemove = samplePlanets.findIndex((item) => item.id === planetId)
+  if (indexToRemove >= 0) {
+    samplePlanets.splice(indexToRemove, 1)
+  }
+  res.redirect('/planets')
 }
 
 // Export all Planet actions.

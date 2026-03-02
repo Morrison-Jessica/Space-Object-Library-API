@@ -4,6 +4,9 @@
   <h2>Planet Show</h2>
   <p><strong>ID:</strong> <%= planet.id %></p>
   <p><strong>Name:</strong> <%= planet.name %></p>
+  <form action="/planets/<%= planet.id %>?_method=DELETE" method="POST">
+    <button type="submit">Delete Planet</button>
+  </form>
   <p>
     <a href="/planets">Back to Planets</a>
     |
