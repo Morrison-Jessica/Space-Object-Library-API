@@ -13,6 +13,22 @@ const wantsJson = (req) => {
   return contentType.includes('application/json') || accept.includes('application/json')
 }
 
+// Return a validation error response.
+const badRequest = (req, res, message) => {
+  if (wantsJson(req)) {
+    return res.status(400).json({ error: message })
+  }
+  return res.status(400).send(message)
+}
+
+// Return a not-found error response.
+const notFound = (req, res) => {
+  if (wantsJson(req)) {
+    return res.status(404).json({ error: 'Planet not found' })
+  }
+  return res.status(404).send('Planet not found')
+}
+
 // Return all planets.
 const index = (req, res) => {
   if (wantsJson(req)) {
@@ -24,12 +40,12 @@ const index = (req, res) => {
 // Return one planet by id.
 const show = (req, res) => {
   const planetId = Number(req.params.id)
+  if (Number.isNaN(planetId)) {
+    return badRequest(req, res, 'Invalid planet id')
+  }
   const planet = samplePlanets.find((item) => item.id === planetId)
   if (!planet) {
-    if (wantsJson(req)) {
-      return res.status(404).json({ error: 'Planet not found' })
-    }
-    return res.status(404).send('Planet not found')
+    return notFound(req, res)
   }
   if (wantsJson(req)) {
     return res.status(200).json(planet)
@@ -48,12 +64,12 @@ const newForm = (req, res) => {
 // Render the edit planet page.
 const editForm = (req, res) => {
   const planetId = Number(req.params.id)
+  if (Number.isNaN(planetId)) {
+    return badRequest(req, res, 'Invalid planet id')
+  }
   const planet = samplePlanets.find((item) => item.id === planetId)
   if (!planet) {
-    if (wantsJson(req)) {
-      return res.status(404).json({ error: 'Planet not found' })
-    }
-    return res.status(404).send('Planet not found')
+    return notFound(req, res)
   }
   if (wantsJson(req)) {
     return res.status(200).json({ message: 'Send PUT /planets/:id with JSON body.', planet })
@@ -63,7 +79,10 @@ const editForm = (req, res) => {
 
 // Create a new planet.
 const create = (req, res) => {
-  const name = (req.body.name || '').trim() || 'Unnamed Planet'
+  const name = (req.body.name || '').trim()
+  if (!name) {
+    return badRequest(req, res, 'Planet name is required')
+  }
   const imageUrl = req.file ? `/uploads/planets/${req.file.filename}` : null
   const planet = { id: nextPlanetId, name, imageUrl }
   samplePlanets.push(planet)
@@ -77,12 +96,15 @@ const create = (req, res) => {
 // Update one planet by id.
 const update = (req, res) => {
   const planetId = Number(req.params.id)
+  if (Number.isNaN(planetId)) {
+    return badRequest(req, res, 'Invalid planet id')
+  }
   const planet = samplePlanets.find((item) => item.id === planetId)
   if (!planet) {
-    if (wantsJson(req)) {
-      return res.status(404).json({ error: 'Planet not found' })
-    }
-    return res.status(404).send('Planet not found')
+    return notFound(req, res)
+  }
+  if (Object.prototype.hasOwnProperty.call(req.body, 'name') && !(req.body.name || '').trim()) {
+    return badRequest(req, res, 'Planet name cannot be empty')
   }
   const nextName = (req.body.name || '').trim()
   if (nextName) {
@@ -100,12 +122,12 @@ const update = (req, res) => {
 // Delete one planet by id.
 const remove = (req, res) => {
   const planetId = Number(req.params.id)
+  if (Number.isNaN(planetId)) {
+    return badRequest(req, res, 'Invalid planet id')
+  }
   const indexToRemove = samplePlanets.findIndex((item) => item.id === planetId)
   if (indexToRemove < 0) {
-    if (wantsJson(req)) {
-      return res.status(404).json({ error: 'Planet not found' })
-    }
-    return res.status(404).send('Planet not found')
+    return notFound(req, res)
   }
   const [deletedPlanet] = samplePlanets.splice(indexToRemove, 1)
   if (wantsJson(req)) {

@@ -13,6 +13,22 @@ const wantsJson = (req) => {
   return contentType.includes('application/json') || accept.includes('application/json')
 }
 
+// Return a validation error response.
+const badRequest = (req, res, message) => {
+  if (wantsJson(req)) {
+    return res.status(400).json({ error: message })
+  }
+  return res.status(400).send(message)
+}
+
+// Return a not-found error response.
+const notFound = (req, res) => {
+  if (wantsJson(req)) {
+    return res.status(404).json({ error: 'Galaxy not found' })
+  }
+  return res.status(404).send('Galaxy not found')
+}
+
 // Return all galaxies.
 const index = (req, res) => {
   if (wantsJson(req)) {
@@ -24,12 +40,12 @@ const index = (req, res) => {
 // Return one galaxy by id.
 const show = (req, res) => {
   const galaxyId = Number(req.params.id)
+  if (Number.isNaN(galaxyId)) {
+    return badRequest(req, res, 'Invalid galaxy id')
+  }
   const galaxy = sampleGalaxies.find((item) => item.id === galaxyId)
   if (!galaxy) {
-    if (wantsJson(req)) {
-      return res.status(404).json({ error: 'Galaxy not found' })
-    }
-    return res.status(404).send('Galaxy not found')
+    return notFound(req, res)
   }
   if (wantsJson(req)) {
     return res.status(200).json(galaxy)
@@ -48,12 +64,12 @@ const newForm = (req, res) => {
 // Render the edit galaxy page.
 const editForm = (req, res) => {
   const galaxyId = Number(req.params.id)
+  if (Number.isNaN(galaxyId)) {
+    return badRequest(req, res, 'Invalid galaxy id')
+  }
   const galaxy = sampleGalaxies.find((item) => item.id === galaxyId)
   if (!galaxy) {
-    if (wantsJson(req)) {
-      return res.status(404).json({ error: 'Galaxy not found' })
-    }
-    return res.status(404).send('Galaxy not found')
+    return notFound(req, res)
   }
   if (wantsJson(req)) {
     return res.status(200).json({ message: 'Send PUT /galaxies/:id with JSON body.', galaxy })
@@ -63,7 +79,10 @@ const editForm = (req, res) => {
 
 // Create a new galaxy.
 const create = (req, res) => {
-  const name = (req.body.name || '').trim() || 'Unnamed Galaxy'
+  const name = (req.body.name || '').trim()
+  if (!name) {
+    return badRequest(req, res, 'Galaxy name is required')
+  }
   const imageUrl = req.file ? `/uploads/galaxies/${req.file.filename}` : null
   const galaxy = { id: nextGalaxyId, name, imageUrl }
   sampleGalaxies.push(galaxy)
@@ -77,12 +96,15 @@ const create = (req, res) => {
 // Update one galaxy by id.
 const update = (req, res) => {
   const galaxyId = Number(req.params.id)
+  if (Number.isNaN(galaxyId)) {
+    return badRequest(req, res, 'Invalid galaxy id')
+  }
   const galaxy = sampleGalaxies.find((item) => item.id === galaxyId)
   if (!galaxy) {
-    if (wantsJson(req)) {
-      return res.status(404).json({ error: 'Galaxy not found' })
-    }
-    return res.status(404).send('Galaxy not found')
+    return notFound(req, res)
+  }
+  if (Object.prototype.hasOwnProperty.call(req.body, 'name') && !(req.body.name || '').trim()) {
+    return badRequest(req, res, 'Galaxy name cannot be empty')
   }
   const nextName = (req.body.name || '').trim()
   if (nextName) {
@@ -100,12 +122,12 @@ const update = (req, res) => {
 // Delete one galaxy by id.
 const remove = (req, res) => {
   const galaxyId = Number(req.params.id)
+  if (Number.isNaN(galaxyId)) {
+    return badRequest(req, res, 'Invalid galaxy id')
+  }
   const indexToRemove = sampleGalaxies.findIndex((item) => item.id === galaxyId)
   if (indexToRemove < 0) {
-    if (wantsJson(req)) {
-      return res.status(404).json({ error: 'Galaxy not found' })
-    }
-    return res.status(404).send('Galaxy not found')
+    return notFound(req, res)
   }
   const [deletedGalaxy] = sampleGalaxies.splice(indexToRemove, 1)
   if (wantsJson(req)) {

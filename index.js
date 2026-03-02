@@ -36,5 +36,20 @@ app.use('/planets', routers.planet)
 app.use('/stars', routers.star)
 app.use('/galaxies', routers.galaxy)
 
+// Return a clean error response for upload and runtime errors.
+app.use((err, req, res, next) => {
+  const contentType = req.get('content-type') || ''
+  const accept = req.get('accept') || ''
+  const wantsJson = contentType.includes('application/json') || accept.includes('application/json')
+  const status = err.status || 500
+  const message = err.message || 'Server error'
+
+  if (wantsJson) {
+    return res.status(status).json({ error: message })
+  }
+
+  return res.status(status).send(message)
+})
+
 // Start the server on port 3000.
 app.listen(3000)

@@ -13,6 +13,22 @@ const wantsJson = (req) => {
   return contentType.includes('application/json') || accept.includes('application/json')
 }
 
+// Return a validation error response.
+const badRequest = (req, res, message) => {
+  if (wantsJson(req)) {
+    return res.status(400).json({ error: message })
+  }
+  return res.status(400).send(message)
+}
+
+// Return a not-found error response.
+const notFound = (req, res) => {
+  if (wantsJson(req)) {
+    return res.status(404).json({ error: 'Star not found' })
+  }
+  return res.status(404).send('Star not found')
+}
+
 // Return all stars.
 const index = (req, res) => {
   if (wantsJson(req)) {
@@ -24,12 +40,12 @@ const index = (req, res) => {
 // Return one star by id.
 const show = (req, res) => {
   const starId = Number(req.params.id)
+  if (Number.isNaN(starId)) {
+    return badRequest(req, res, 'Invalid star id')
+  }
   const star = sampleStars.find((item) => item.id === starId)
   if (!star) {
-    if (wantsJson(req)) {
-      return res.status(404).json({ error: 'Star not found' })
-    }
-    return res.status(404).send('Star not found')
+    return notFound(req, res)
   }
   if (wantsJson(req)) {
     return res.status(200).json(star)
@@ -48,12 +64,12 @@ const newForm = (req, res) => {
 // Render the edit star page.
 const editForm = (req, res) => {
   const starId = Number(req.params.id)
+  if (Number.isNaN(starId)) {
+    return badRequest(req, res, 'Invalid star id')
+  }
   const star = sampleStars.find((item) => item.id === starId)
   if (!star) {
-    if (wantsJson(req)) {
-      return res.status(404).json({ error: 'Star not found' })
-    }
-    return res.status(404).send('Star not found')
+    return notFound(req, res)
   }
   if (wantsJson(req)) {
     return res.status(200).json({ message: 'Send PUT /stars/:id with JSON body.', star })
@@ -63,7 +79,10 @@ const editForm = (req, res) => {
 
 // Create a new star.
 const create = (req, res) => {
-  const name = (req.body.name || '').trim() || 'Unnamed Star'
+  const name = (req.body.name || '').trim()
+  if (!name) {
+    return badRequest(req, res, 'Star name is required')
+  }
   const imageUrl = req.file ? `/uploads/stars/${req.file.filename}` : null
   const star = { id: nextStarId, name, imageUrl }
   sampleStars.push(star)
@@ -77,12 +96,15 @@ const create = (req, res) => {
 // Update one star by id.
 const update = (req, res) => {
   const starId = Number(req.params.id)
+  if (Number.isNaN(starId)) {
+    return badRequest(req, res, 'Invalid star id')
+  }
   const star = sampleStars.find((item) => item.id === starId)
   if (!star) {
-    if (wantsJson(req)) {
-      return res.status(404).json({ error: 'Star not found' })
-    }
-    return res.status(404).send('Star not found')
+    return notFound(req, res)
+  }
+  if (Object.prototype.hasOwnProperty.call(req.body, 'name') && !(req.body.name || '').trim()) {
+    return badRequest(req, res, 'Star name cannot be empty')
   }
   const nextName = (req.body.name || '').trim()
   if (nextName) {
@@ -100,12 +122,12 @@ const update = (req, res) => {
 // Delete one star by id.
 const remove = (req, res) => {
   const starId = Number(req.params.id)
+  if (Number.isNaN(starId)) {
+    return badRequest(req, res, 'Invalid star id')
+  }
   const indexToRemove = sampleStars.findIndex((item) => item.id === starId)
   if (indexToRemove < 0) {
-    if (wantsJson(req)) {
-      return res.status(404).json({ error: 'Star not found' })
-    }
-    return res.status(404).send('Star not found')
+    return notFound(req, res)
   }
   const [deletedStar] = sampleStars.splice(indexToRemove, 1)
   if (wantsJson(req)) {
