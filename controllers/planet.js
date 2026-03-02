@@ -1,8 +1,8 @@
 // Handle Planet REST actions.
 const samplePlanets = [
-  { id: 1, name: 'Mercury' },
-  { id: 2, name: 'Venus' },
-  { id: 3, name: 'Earth' }
+  { id: 1, name: 'Mercury', imageUrl: null },
+  { id: 2, name: 'Venus', imageUrl: null },
+  { id: 3, name: 'Earth', imageUrl: null }
 ]
 let nextPlanetId = 4
 
@@ -64,7 +64,8 @@ const editForm = (req, res) => {
 // Create a new planet.
 const create = (req, res) => {
   const name = (req.body.name || '').trim() || 'Unnamed Planet'
-  const planet = { id: nextPlanetId, name }
+  const imageUrl = req.file ? `/uploads/planets/${req.file.filename}` : null
+  const planet = { id: nextPlanetId, name, imageUrl }
   samplePlanets.push(planet)
   nextPlanetId += 1
   if (wantsJson(req)) {
@@ -86,6 +87,9 @@ const update = (req, res) => {
   const nextName = (req.body.name || '').trim()
   if (nextName) {
     planet.name = nextName
+  }
+  if (req.file) {
+    planet.imageUrl = `/uploads/planets/${req.file.filename}`
   }
   if (wantsJson(req)) {
     return res.status(200).json(planet)

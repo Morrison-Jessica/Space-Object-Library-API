@@ -2,7 +2,23 @@
 
 <section class="panel">
   <h2>Galaxies Index</h2>
-  <p>Phase 2 layout: list all galaxies here.</p>
+  <p><a href="/galaxies/new">Create Galaxy</a></p>
+  <ul>
+    <% galaxies.forEach((galaxy) => { %>
+      <li>
+        <% if (galaxy.imageUrl) { %>
+          <img src="<%= galaxy.imageUrl %>" alt="<%= galaxy.name %>" class="thumb" />
+        <% } %>
+        <a href="/galaxies/<%= galaxy.id %>"><%= galaxy.name %></a>
+        |
+        <a href="/galaxies/<%= galaxy.id %>/edit">Edit</a>
+        |
+        <form action="/galaxies/<%= galaxy.id %>?_method=DELETE" method="POST" style="display:inline;">
+          <button type="submit">Delete</button>
+        </form>
+      </li>
+    <% }) %>
+  </ul>
 </section>
 
 <%- include('../partials/footer') %>

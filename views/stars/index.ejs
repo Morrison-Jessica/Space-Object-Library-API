@@ -2,7 +2,23 @@
 
 <section class="panel">
   <h2>Stars Index</h2>
-  <p>Phase 2 layout: list all stars here.</p>
+  <p><a href="/stars/new">Create Star</a></p>
+  <ul>
+    <% stars.forEach((star) => { %>
+      <li>
+        <% if (star.imageUrl) { %>
+          <img src="<%= star.imageUrl %>" alt="<%= star.name %>" class="thumb" />
+        <% } %>
+        <a href="/stars/<%= star.id %>"><%= star.name %></a>
+        |
+        <a href="/stars/<%= star.id %>/edit">Edit</a>
+        |
+        <form action="/stars/<%= star.id %>?_method=DELETE" method="POST" style="display:inline;">
+          <button type="submit">Delete</button>
+        </form>
+      </li>
+    <% }) %>
+  </ul>
 </section>
 
 <%- include('../partials/footer') %>

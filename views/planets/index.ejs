@@ -7,6 +7,9 @@
   <ul>
     <% planets.forEach((planet) => { %>
       <li>
+        <% if (planet.imageUrl) { %>
+          <img src="<%= planet.imageUrl %>" alt="<%= planet.name %>" class="thumb" />
+        <% } %>
         <a href="/planets/<%= planet.id %>"><%= planet.name %></a>
         |
         <a href="/planets/<%= planet.id %>/edit">Edit</a>

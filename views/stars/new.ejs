@@ -2,7 +2,20 @@
 
 <section class="panel">
   <h2>Star New</h2>
-  <p>Phase 2 layout: add the create form here.</p>
+  <form action="/stars" method="POST" enctype="multipart/form-data">
+    <p>
+      <label for="name">Star Name</label><br />
+      <input id="name" name="name" type="text" required />
+    </p>
+    <p>
+      <label for="image">Star Image</label><br />
+      <input id="image" name="image" type="file" accept="image/*" />
+    </p>
+    <p>
+      <button type="submit">Create Star</button>
+    </p>
+  </form>
+  <p><a href="/stars">Back to Stars</a></p>
 </section>
 
 <%- include('../partials/footer') %>

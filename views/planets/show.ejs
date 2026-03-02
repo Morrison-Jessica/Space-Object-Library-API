@@ -4,6 +4,9 @@
   <h2>Planet Show</h2>
   <p><strong>ID:</strong> <%= planet.id %></p>
   <p><strong>Name:</strong> <%= planet.name %></p>
+  <% if (planet.imageUrl) { %>
+    <p><img src="<%= planet.imageUrl %>" alt="<%= planet.name %>" class="hero-image" /></p>
+  <% } %>
   <form action="/planets/<%= planet.id %>?_method=DELETE" method="POST">
     <button type="submit">Delete Planet</button>
   </form>
