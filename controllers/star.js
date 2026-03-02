@@ -1,33 +1,29 @@
-//💚
-// Show all resources
+// Handle Star REST actions.
+
+// Return all stars.
 const index = (req, res) => {
-  // Respond with an array and 2xx status code
-  res.status(200).json([`Star#index`])
+  res.status(200).json(['Star#index'])
 }
 
-// Show single resource
+// Return one star by id.
 const show = (req, res) => {
-  // Respond with a single object and 2xx code
-  res.status(200).json(`Star#show(:id)`)
+  res.status(200).json('Star#show(:id)')
 }
 
-// Create a new resource
+// Create a new star.
 const create = (req, res) => {
-  // Issue a redirect with a success 2xx code
-  res.redirect(`/stars`, 201)
+  res.redirect('/stars', 201)
 }
 
-// Update an existing resource
+// Update one star by id.
 const update = (req, res) => {
-  // Respond with a single resource and 2xx code
-  res.status(200).json(`/stars/${req.params.id}`, )
+  res.status(200).json(`/stars/${req.params.id}`)
 }
 
-// Remove a single resource
+// Delete one star by id.
 const remove = (req, res) => {
-  // Respond with a 2xx status code and bool
   res.status(204).json(true)
 }
 
-// Export all controller actions
+// Export all Star actions.
 module.exports = { index, show, create, update, remove }

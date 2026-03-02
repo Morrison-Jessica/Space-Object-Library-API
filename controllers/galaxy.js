@@ -1,33 +1,29 @@
-//💚
-// Show all resources
+// Handle Galaxy REST actions.
+
+// Return all galaxies.
 const index = (req, res) => {
-  // Respond with an array and 2xx status code
-  res.status(200).json([`Galaxy#index`])
+  res.status(200).json(['Galaxy#index'])
 }
 
-// Show single resource
+// Return one galaxy by id.
 const show = (req, res) => {
-  // Respond with a single object and 2xx code
-  res.status(200).json(`Galaxy#show(:id)`)
+  res.status(200).json('Galaxy#show(:id)')
 }
 
-// Create a new resource
+// Create a new galaxy.
 const create = (req, res) => {
-  // Issue a redirect with a success 2xx code
-  res.redirect(`/galaxies`, 201)
+  res.redirect('/galaxies', 201)
 }
 
-// Update an existing resource
+// Update one galaxy by id.
 const update = (req, res) => {
-  // Respond with a single resource and 2xx code
-  res.status(200).json(`/galaxies/${req.params.id}`, )
+  res.status(200).json(`/galaxies/${req.params.id}`)
 }
 
-// Remove a single resource
+// Delete one galaxy by id.
 const remove = (req, res) => {
-  // Respond with a 2xx status code and bool
   res.status(204).json(true)
 }
 
-// Export all controller actions
+// Export all Galaxy actions.
 module.exports = { index, show, create, update, remove }

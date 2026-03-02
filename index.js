@@ -1,26 +1,27 @@
-// Load in our Express framework
-const express       = require(`express`)
+// Load the Express framework.
+const express = require('express')
+// Create the app instance.
+const app = express()
 
-// Create a new Express instance called "app"
-const app           = express()
+// Set EJS as the template engine.
+app.set('view engine', 'ejs')
+// Set the folder that stores EJS view files.
+app.set('views', './views')
 
-// Load in our RESTful routers
+// Load the RESTful routers.
 const routers = require('./routers/index.js')
 
-// Home page welcome middleware
+// Send a welcome message on the home route.
 app.get('/', (req, res) => {
   res
     .status(200)
     .send('Welcome to Star Tracker Library')
 })
 
-// Register our RESTful routers with our "app"
-app.use(`/planets`,  routers.planet)
-app.use(`/stars`,    routers.star)
-app.use(`/galaxies`, routers.galaxy)
+// Register each RESTful router.
+app.use('/planets', routers.planet)
+app.use('/stars', routers.star)
+app.use('/galaxies', routers.galaxy)
 
-// Set our app to listen on port 3000
+// Start the server on port 3000.
 app.listen(3000)
-
-//💜 SEQUELIZE https://sequelize.org/docs/v7/category/other-topics/
-//💜 DOCKER https://docs.docker.com/?_gl=1*5mvfm8*_gcl_au*Mjc3MTMwNDguMTc3MTkxOTI0NA..*_ga*MjExNDg1NTI1NC4xNzcxOTE5MjQ0*_ga_XJWPQMJYHQ*czE3NzE5MTkyNDQkbzEkZzEkdDE3NzE5MTkyNDUkajU5JGwwJGgw
