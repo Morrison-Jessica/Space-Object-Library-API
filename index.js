@@ -7,6 +7,8 @@ const app = express()
 app.set('view engine', 'ejs')
 // Set the folder that stores EJS view files.
 app.set('views', './views')
+// Serve static files from the public folder.
+app.use(express.static('public'))
 
 // Load the RESTful routers.
 const routers = require('./routers/index.js')
